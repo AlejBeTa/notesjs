@@ -1,47 +1,25 @@
-document.addEventListener('DOMContentLoaded', function(){
-    let addButton = document.getElementById('addButton');
-    let noteInput = document.getElementById('noteInput');
-    let saveButton = document.getElementById('saveButton');
+require('dotenv').config()
 
-    addButton.addEventListener('click', function(){
-        addButton.style.display = 'none';
-        noteInput.style.display = 'block';
-        saveButton.style.display = 'block';
-        noteInput.focus();
-    })
+const express = require('express')
+const connectDB = require('./config/db')
+const routes = require('./routes/noteRoutes')
+const cors = require('cors')
 
-    saveButton.addEventListener('click', function(){
-        addOrUpdateNote();
-    })
-});
+const app = express()
 
-function addOrUpdateNote(){
-    console.log(`AEA`)
+connectDB()
 
-    let noteInputValue = document.getElementById('noteInput').value.trim()
-    if(noteInputValue !== ""){
+app.use(cors())
 
-        let notes = JSON.parse(localStorage.getItem('notes')) || [];
-        let noteIndexElement = document.getElementById('noteIndex');
+const PORT = process.env.PORT
 
-        let noteIndex = noteIndexElement ? parseInt(noteIndexElement.value) : -1;
+app.use(express.json())
+app.use('/api/notes', routes)
 
-        if(!isNaN(noteIndex) && noteIndex >=0 && noteIndex < notes.length){
-            //Update existing note
-            notes[noteIndex].text = noteInputValue;
-        }else{
-            //Add new note
-            notes.push({text: noteInputValue, completed: false})
-        }
+app.get('/', (req, res) => {
+    res.send('Server en express');
+})
 
-        localStorage.setItem('notes', JSON.stringify(notes))
-
-        document.getElementById('noteInput').value = "";
-
-        document.getElementById('addButton').style. display = 'block';
-        document.getElementById('noteInput').style. display = 'none';
-        document.getElementById('saveButton').style. display = 'none';
-    }else{
-        alert('Write something in the note')
-    }
-}
+app.listen(PORT, () => {
+    console.log(`Server corriendo en http://localhost:${PORT}`);
+})
